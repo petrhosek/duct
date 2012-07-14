@@ -1,0 +1,5 @@
+dependencies:
+  redis:
+    git: git://github.com/mythz/DartRedisClient.git
+  unittest:
+    sdk: unittest
