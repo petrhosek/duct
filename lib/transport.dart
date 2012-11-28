@@ -1,6 +1,6 @@
-#library('transport');
+library transport;
 
-interface Transport default _Transport {
+abstract class Transport {
   void handleRequest(req);
 
   void setHandlers();

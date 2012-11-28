@@ -1,6 +1,6 @@
-#library('memory');
+library memory;
 
-#import('../store.dart');
+import '../store.dart';
 
 class MemoryClient implements Client {
 

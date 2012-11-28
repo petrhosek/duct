@@ -1,12 +1,8 @@
-#library('manager');
+library manager;
 
-#import('dart:io');
+import 'dart:io';
 
-interface Manager default _Manager {
-}
-
-class _Manager {
-
+class Manager {
   Map rooms;
   bool static;
   HttpServer server;
@@ -15,10 +11,10 @@ class _Manager {
   Map _client;
   Map _handshaken;
 
-  Map get client() => _client;
-  Map get handshaken() => _handshaken;
+  Map get client => _client;
+  Map get handshaken => _handshaken;
 
-  _Manager(this.server, options) {
+  Manager(this.server, options) {
     _namespaces = new Map<>();
     _sockets = new Map<>();
     transports = new Map<>();
@@ -45,12 +41,13 @@ class _Manager {
     });
 
     transports.forEach((t) {
-      if (t.init != null)
+      if (t.init != null) {
         t.init(this);
+      }
     });
   }
 
-  get store() => get('store');
+  get store => get('store');
 
   get(String key) => _settings[key];
   set(String key, [Object value = null]) {
@@ -208,7 +205,7 @@ class _Manager {
    * Called when a client disconnects.
    */
   void onDisconnect(String id, [bool local=false]) {
-    
+
   }
 
   void handleRequest(req, res) {

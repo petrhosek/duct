@@ -1,7 +1,7 @@
-#library('redis');
+library redis;
 
-#import('../store.dart');
-#import('package:redis/RedisClient.dart');
+import '../store.dart';
+import 'package:redis/RedisClient.dart';
 
 class RedisClient implements Client {
 
@@ -53,8 +53,9 @@ class RedisStore extends AbstractStore {
               msg = unpack(msg);
 
               // check that the message wasn't emitted by this node
-              if (_nodeId != msg.nodeId)
+              if (_nodeId != msg.nodeId) {
                 consumer();
+              }
             }
           };
           sub.on.message.add(message);
@@ -69,8 +70,9 @@ class RedisStore extends AbstractStore {
 
           sub.subcribeListeners.remove(subscribe);
 
-          if (callback != null)
-            callback(); // TODO: use futures
+          if (callback != null) {
+            callback();
+          } // TODO: use futures
         }
       };
       sub.on.subscribe.add(subscribe);

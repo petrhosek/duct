@@ -1,5 +1,6 @@
+name: duct
 dependencies:
-  redis:
+  dartredisclient:
     git: git://github.com/mythz/DartRedisClient.git
   unittest:
     sdk: unittest

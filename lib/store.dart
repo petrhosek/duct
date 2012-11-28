@@ -1,6 +1,6 @@
-#library('store');
+library store;
 
-interface Client {
+abstract class Client {
   Store store;
   String id;
 
@@ -11,7 +11,7 @@ interface Client {
   Client destroy(int expiration);
 }
 
-interface Store {
+abstract class Store {
 
   Client client(String id);
   publish();
@@ -51,7 +51,7 @@ class AbstractStore implements Store {
    * Destroys the store.
    */
   Store _destroy([int expiration]) {
-    _clients.getValues().forEach((c) => _destroyClient(c, expiration));
+    _clients.values.forEach((c) => _destroyClient(c, expiration));
     _clients = new Map<String, Client>();
     return this;
   }

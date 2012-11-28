@@ -1,34 +1,29 @@
-#library('namespace');
+library namespace;
 
-#import('socket.dart');
-#import('manager.dart');
+import 'manager.dart';
+import 'socket.dart';
+import 'store.dart';
 
-interface SocketNamespace default _SocketNamespace {
-  Packet send(Map data);
-  Packet emit(String name);
-  void handlePacket(String sessid, Map packet);
-}
-
-class _SocketNamespace {
+class SocketNamespace {
   Manager _manager;
   String _name;
   Map<String, Socket> _sockets;
   Function _auth;
 
-  _SocketNamespace(this._manager, [this._name = '']) {
+  SocketNamespace(this._manager, [this._name = '']) {
     _sockets = new Map<String, Socket>();
     _auth = false;
   }
 
-  Logger get log() => _manager.log;
-  Store get store() => _manager.store;
+  Logger get log => _manager.log;
+  Store get store => _manager.store;
 
-  Socket get json() {
+  Socket get json {
     _flags.json = true;
     return this;
   }
 
-  Socket get volatile() {
+  Socket get volatile {
     _flags.volatile = true;
     return this;
   }
@@ -116,8 +111,9 @@ class _SocketNamespace {
           Object handshakeData = _manager.handshaken[sessid];
 
           authorize(handshakeData, (err, authorized, newData) {
-            if (err != null)
+            if (err != null) {
               return error(err);
+            }
 
             if (authorized) {
               Map data = new Map.from(newData);
@@ -145,8 +141,9 @@ class _SocketNamespace {
         } else {
           List params = packet.args;
 
-          if (dataAck)
+          if (dataAck) {
             params.add(ack);
+          }
 
           socket._emit(packet.name, params);
         }
@@ -163,8 +160,9 @@ class _SocketNamespace {
       case 'message':
         List params = [packet.data];
 
-        if (dataAck)
+        if (dataAck) {
           params.add(ack);
+        }
 
         socket._emit('message', params);
         break;

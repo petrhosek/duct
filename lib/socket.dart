@@ -1,13 +1,13 @@
-#library('socket');
+library socket;
 
-#import('dart:io');
-#import('manager.dart');
+import 'dart:io';
+import 'manager.dart';
 
-interface Event { }
+abstract class Event { }
 
 typedef void EventListener(Event event);
 
-interface EventListenerList {
+abstract class EventListenerList {
   EventListenerList add(EventListener handler, [bool useCapture]);
 
   EventListenerList remove(EventListener handler, [bool useCapture]);
@@ -15,11 +15,11 @@ interface EventListenerList {
   bool dispatch(Event evt);
 }
 
-interface SocketEvents extends Events {
-  EventListenerList get event();
+abstract class SocketEvents extends Event {
+  EventListenerList get event;
 }
 
-interface Socket default _Socket {
+abstract class Socket {
 }
 
 class _Socket {
@@ -39,12 +39,12 @@ class _Socket {
     _manager.store.client(_id);
   }
 
-  get handshake() => _manager.handshaken[_id];
-  get manager() => _manager.transports[_id].name;
-  get log() => _manager.log;
-  get json() => _flags.json = true;
-  get volatile() => _flags.volatile = true;
-  get broadcast() =>  _flags.broadcast = true;
+  get handshake => _manager.handshaken[_id];
+  get manager => _manager.transports[_id].name;
+  get log => _manager.log;
+  get json => _flags.json = true;
+  get volatile => _flags.volatile = true;
+  get broadcast =>  _flags.broadcast = true;
 
   set to(String room) => _flags.room = room;
   set flags(Flags flags) {
@@ -116,7 +116,7 @@ class _Socket {
    */
   Socket disconnect() {
     if (!_disconnected) {
-      if (_namespace.name === '') {
+      if (identical(_namespace.name, '')) {
         if (_manager.transports[_id] && _manager.transports[_id].open) {
           _manager.transports[_id].onForcedDisconnect();
         }

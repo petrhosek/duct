@@ -1,7 +1,7 @@
-#library('parser-test');
+library parser_test;
 
-#import('package:unittest/unittest.dart');
-#import('parser.dart');
+import 'package:unittest/unittest.dart';
+import '../lib/parser.dart';
 
 /**
  * Parser test.
@@ -62,20 +62,12 @@ void main() {
   });
 
   test('decoding ack packet with bad json', () {
-    bool thrown = false;
-
-    try {
-      expect(Parser.decodePacket('6:::1+{"++]'), equals({
-          'type': 'ack'
-        , 'ackId': '1'
-        , 'endpoint': ''
-        , 'args': []
-      }));
-    } catch (final e) {
-      thrown = true;
-    }
-
-    expect(thrown, isFalse);
+    expect(Parser.decodePacket('6:::1+{"++]'), equals({
+        'type': 'ack'
+      , 'ackId': '1'
+      , 'endpoint': ''
+      , 'args': []
+    }));
   });
 
   test('decoding json packet', () {

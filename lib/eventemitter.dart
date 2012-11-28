@@ -1,10 +1,10 @@
-#library('eventemitter');
+library eventemitter;
 
-#import('dart:isolate');
+import 'dart:isolate';
 
 typedef EventListener([arg1, arg2, arg3]);
 
-interface EventEmitter default _EventEmitter {
+abstract class EventEmitter {
   void addListener(String event, EventListener listener);
   void on(String event, EventListener listener);
   void once(String event, EventListener listener);
