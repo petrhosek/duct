@@ -1,5 +1,17 @@
 library transport;
 
+class TransportEvents extends Events {
+  EventListenerList get connect => this['connect'];
+  EventListenerList get end => this['end'];
+  EventListenerList get close => this['close'];
+  EventListenerList get error => this['error'];
+  EventListenerList get drain => this['drain'];
+
+  EventListenerList operator[](String type) {
+    super();
+  }
+}
+
 abstract class Transport {
   void handleRequest(req);
 

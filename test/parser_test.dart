@@ -1,12 +1,10 @@
-library parser_test;
-
 import 'package:unittest/unittest.dart';
 import '../lib/parser.dart';
 
 /**
  * Parser test.
  */
-void main() {
+main() {
   test('decoding error packet', () {
     expect(Parser.decodePacket('7:::'), equals({
         'type': 'error'

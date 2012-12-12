@@ -2,6 +2,7 @@ library socket;
 
 import 'dart:io';
 import 'manager.dart';
+import 'namespace.dart';
 
 abstract class Event { }
 

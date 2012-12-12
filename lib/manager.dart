@@ -2,22 +2,33 @@ library manager;
 
 import 'dart:io';
 
+import 'namespace.dart';
+import 'transport.dart';
+
 class Manager {
   Map rooms;
   bool static;
   HttpServer server;
   Map transports;
+  
+  Map _namespaces;
+  Map _sockets;
+  
+  Map _rooms;
+  Map _roomClients;
 
   Map _client;
   Map _handshaken;
+  
+  Map<String, Object> _settings;
 
   Map get client => _client;
   Map get handshaken => _handshaken;
 
   Manager(this.server, options) {
-    _namespaces = new Map<>();
-    _sockets = new Map<>();
-    transports = new Map<>();
+    _namespaces = new Map();
+    _sockets = new Map();
+    transports = new Map();
 
     _rooms = new Map<String, List<String>>();
     _roomClients = new Map<String, Map<String, bool>>();
@@ -40,7 +51,7 @@ class Manager {
       //gc = setInterval(_garbageCollection, 1000);
     });
 
-    transports.forEach((t) {
+    transports.forEach((Transport t) {
       if (t.init != null) {
         t.init(this);
       }
@@ -232,8 +243,8 @@ class Manager {
   void authorize(Object data, Function fn) {
   }
 
-  List transports(Object data) {
-  }
+  //List transports(Object data) {
+  //}
 
   bool checkRequest(req) {
   }

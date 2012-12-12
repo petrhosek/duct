@@ -2,6 +2,44 @@ library eventemitter;
 
 import 'dart:isolate';
 
+/////////////////////////////////////////////////////////
+
+typedef void EventListener(Event event);
+
+class EventListenerList {
+  final List<EventListener> _listenerList;
+  
+  EventListenerList(EventTarget _ptr, String _type) :
+    _listenerList = <EventListener>[];
+  
+  EventListenerList add(EventListener listener) {
+    _listenerList.add(listener);
+    return this;
+  }
+  
+  bool dispatch(Event event) {
+    _listenerList.forEach((listener) => listener(event));
+  }
+  
+  EventListenerList remove(EventListener listener) {
+    _listenerList.removeAt(listener);
+    return this;
+  }
+}
+
+class Events {
+  final Map<String, EventListenerList> _listenerMap;
+  
+  Events() : _listenerMap = <EventListener>{};
+  
+  EventListenerList operator[](String type) {
+    return _listenerMap.putIfAbsent(type,
+        () => new EventListenerList());
+  }
+}
+
+//////////////////////////////////////////////////////////
+
 typedef EventListener([arg1, arg2, arg3]);
 
 abstract class EventEmitter {
