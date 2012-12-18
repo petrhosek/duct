@@ -1,95 +1,80 @@
-library redis;
+library redis_store;
 
 import '../store.dart';
-import 'package:redis/RedisClient.dart';
+import 'package:dartredisclient/redis_client.dart';
 
-class RedisClient implements Client {
-
+class _RedisClient implements Client {
+  RedisStore store;
   String id;
-  RedisStore _store;
+  
+  _RedisClient(this.store, this.id);
 
-  Future<Object> get(String key) => _store.cmd.hget(_id, key);
-  Future<bool> set(String key, Object value) => _store.cmd.hset(_id, key, value);
-  Future<int> del(String key) => _store.cmd.hdel(_id, key, value);
-  Future<bool> has(String key) => _store.cmd.hexists(_id, key);
+  /**
+   * Gets a key [key].
+   */
+  Future<Object> get(String key) => store._client.hget(id, key);
+
+  /**
+   * Sets a key [key] with value [value].
+   */
+  Future<bool> set(String key, Object value) => store._client.hset(id, key, value);
+
+  /**
+   * Deletes a key [key].
+   */
+  Future<int> del(String key) => store._client.hdel(id, key);
+
+  /**
+   * Has a key [key]?
+   */
+  Future<bool> has(String key) => store._client.hexists(id, key);
 
   /**
    * Destroys client.
    */
   void destroy([int expiration]) {
-    if (expiration == null) {
-      _store.client.del(_id);
+    if (?expiration) {
+      store._client.expire(id, expiration);
     } else {
-      _store.client.expire(_id, expiration);
+      store._client.del(id);
     }
   }
-
-  RedisClient._internal(this.id);
-
 }
 
-class RedisStore extends AbstractStore {
+class RedisStore extends Store {
+  RedisClient _client;
 
-  RedisClient pub, sub, cmd;
-
-  RedisStore([Map options={}]): super(options) {
-    RedisClient client = new RedisClient('');
+  RedisStore([options = const {}]): super(options) {
+    if (options['client'] is RedisClient) {
+      _client = options['client'];
+    } else {
+      _client = new RedisClient(options['connStr']);
+    }
   }
+  
+  Client createClient(Store store, String id) => new _RedisClient(store, id);
 
   /**
    * Publishes a message.
    */
-  void publish(String name) {
-  }
+  publish() {}
 
-  void subscribe(String name, String consumer, [Function callback]) {
-    sub.subscribe(name);
+  /**
+   * Subscribes to a channel.
+   */
+  subscribe() {}
 
-    if (consumer != null) {
-      void subscribe(channel) {
-        if (name == channel) {
-          void message(String channel, msg) {
-            if (name == channel) {
-              msg = unpack(msg);
-
-              // check that the message wasn't emitted by this node
-              if (_nodeId != msg.nodeId) {
-                consumer();
-              }
-            }
-          };
-          sub.on.message.add(message);
-
-          void unsubscribe(String channel) {
-            if (name == channel) {
-              sub.messageListeners.remove(message);
-              unsubscribeListeners.remove(unsubscribe);
-            }
-          };
-          on.unsubscribe.add(unsubscribe);
-
-          sub.subcribeListeners.remove(subscribe);
-
-          if (callback != null) {
-            callback();
-          } // TODO: use futures
-        }
-      };
-      sub.on.subscribe.add(subscribe);
-    }
-  }
-
-  void unsubscribe(String name, Function callback) {
-  }
+  /**
+   * Unsubscribes from a channel.
+   */
+  unsubscribe() {}
 
   /**
    * Destroys the store.
    */
-  void destroy() {
+  void destroy([int expiration]) {
     super.destroy();
-    pub.end();
-    sub.end();
-    cmd.end();
+    _client.quit();
   }
 
 }

@@ -9,6 +9,13 @@ import 'socket.dart';
 import 'store.dart';
 import 'transport.dart';
 
+export 'manager.dart';
+export 'namespace.dart';
+export 'parser.dart';
+export 'socket.dart';
+export 'store.dart';
+export 'transport.dart';
+
 class Duct {
   /**
    * Version.

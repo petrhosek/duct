@@ -208,9 +208,7 @@ class Parser {
   }
 
   /**
-   * Decodes data payload. Detects multiple messages
-   *
-   * @return messages
+   * Decodes data payload. Detects multiple messages.
    */
   static List<Map> decodePayload(String data) {
     if (data == null) {

@@ -1,48 +1,74 @@
-library memory;
+library memory_store;
 
 import '../store.dart';
+import 'dart:isolate';
 
-class MemoryClient implements Client {
-
-  Store store;
+class _MemoryClient implements Client {
+  MemoryStore store;
   String id;
-  Map _data;
+  Map<String, Object> _data;
 
-  MemoryClient(this.store, this.id);
-
-  get(String key, fn);
-  set(String key, String value, fn);
-  has(String key, fn);
-  del(String key, fn);
-
-  Client destroy(int expiration) {
-    setTimeout(() => _data = new Map(), expiration * 1000);
-    return this;
+  _MemoryClient(this.store, this.id) {
+    _data = new Map<String, Object>();
   }
 
-  static Map<String, Client> _clients;
+  /**
+   * Gets a key [key].
+   */
+  Future<Object> get(String key) => new Future.immediate(_data[key]);
 
-  factory MemoryClient(String id) {
-    if (_clients == null) {
-      _clients = {};
-    }
+  /**
+   * Sets a key [key] with value [value].
+   */
+  Future<bool> set(String key, Object value) {
+    _data[key] = value;
+    return new Future.immediate(true);
+  }
 
-    if (_clients.containsKey(id)) {
-      return _clients[id];
+  /**
+   * Deletes a key [key].
+   */
+  Future<int> del(String key) {
+    _data.remove(key);
+    return new Future.immediate(1);
+  }
+
+  /**
+   * Has a key [key]?
+   */
+  Future<bool> has(String key) => new Future.immediate(_data.containsKey(key));
+
+  /**
+   * Destroys client.
+   */
+  void destroy([int expiration]) {
+    if (expiration != null) {
+      new Timer(expiration * 1000, (_) => _data = <String, Object>{});
     } else {
-      final client = new MemoryClient._internal(this, id);
-      _clients[id] = client;
-      return client;
+      _data = new Map<String, Object>();
     }
   }
-
-  MemoryClient._internal(this.id);
-
 }
 
-class MemoryStore extends AbstractStore {
+class MemoryStore extends Store {
 
-  Memory(Map options): super(options) {
-  }
+  MemoryStore([options = const {}]): super(options);
+  
+  Client createClient(Store store, String id) => new _MemoryClient(store, id);
+
+  /**
+   * Publishes a message.
+   */
+  publish() {}
+
+  /**
+   * Subscribes to a channel.
+   */
+  subscribe() {}
+
+  /**
+   * Unsubscribes from a channel.
+   */
+  unsubscribe() {}
 
 }

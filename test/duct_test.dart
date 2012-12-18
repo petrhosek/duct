@@ -4,7 +4,7 @@ import '../lib/duct.dart';
 import 'dart:io';
 
 /**
- * Test.
+ * Duct test.
  */
 main() {
   int ports = 15000;
