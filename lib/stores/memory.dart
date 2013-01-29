@@ -59,16 +59,16 @@ class MemoryStore extends Store {
   /**
    * Publishes a message.
    */
-  publish() {}
+  publish(String name, [data]) {}
 
   /**
    * Subscribes to a channel.
    */
-  subscribe() {}
+  subscribe(String name, Function fn) {}
 
   /**
    * Unsubscribes from a channel.
    */
-  unsubscribe() {}
-
+  unsubscribe(String name) {}
+  
 }

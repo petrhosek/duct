@@ -76,7 +76,7 @@ abstract class Store {
     clients = new Map<String, Client>();
   }
 
-  publish();
-  subscribe();
-  unsubscribe();
+  publish(String name, [data]);
+  subscribe(String name, Function fn);
+  unsubscribe(String name);
 }

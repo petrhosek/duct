@@ -6,11 +6,19 @@ import 'dart:isolate';
 
 typedef void EventListener(Event event);
 
+class EventTarget {
+  Events get on => new Events(this);
+  
+  void addEventListener(String type, EventListener listener, [bool useCapture]);
+  bool dispatchEvent(Event event);
+  void removeEventListener(String type, EventListener listener, [bool useCapture]);
+}
+
 class EventListenerList {
-  final List<EventListener> _listenerList;
+  final Set<EventListener> _listenerList;
   
   EventListenerList(EventTarget _ptr, String _type) :
-    _listenerList = <EventListener>[];
+    _listenerList = new Set<EventListener>();
   
   EventListenerList add(EventListener listener) {
     _listenerList.add(listener);
@@ -22,20 +30,26 @@ class EventListenerList {
   }
   
   EventListenerList remove(EventListener listener) {
-    _listenerList.removeAt(listener);
+    _listenerList.remove(listener);
     return this;
   }
 }
 
 class Events {
+  final EventTarget _ptr;
   final Map<String, EventListenerList> _listenerMap;
   
-  Events() : _listenerMap = <EventListener>{};
+  Events(this._ptr) : _listenerMap = <String, EventListenerList>{};
   
   EventListenerList operator[](String type) {
     return _listenerMap.putIfAbsent(type,
-        () => new EventListenerList());
+        () => new EventListenerList(_ptr, type));
   }
+}
+
+class XXX extends Events {
+  XXX(EventTarget _ptr) : super(_ptr);
+  EventListenerList get click => this['click'];
 }
 
 //////////////////////////////////////////////////////////

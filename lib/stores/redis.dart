@@ -53,21 +53,21 @@ class RedisStore extends Store {
   }
   
   Client createClient(Store store, String id) => new _RedisClient(store, id);
-
+  
   /**
    * Publishes a message.
    */
-  publish() {}
+  publish(String name, [data]) {}
 
   /**
    * Subscribes to a channel.
    */
-  subscribe() {}
+  subscribe(String name, Function fn) {}
 
   /**
    * Unsubscribes from a channel.
    */
-  unsubscribe() {}
+  unsubscribe(String name) {}
 
   /**
    * Destroys the store.

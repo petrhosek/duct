@@ -2,6 +2,9 @@ library parser;
 
 import 'dart:json';
 
+// https://github.com/prujohn/dart-xml/blob/master/lib/src/xml_tokenizer.dart
+// https://github.com/prujohn/dart-xml/blob/master/lib/src/xml_parser.dart
+
 class Parser {
 
   static final packets = const <String, int> {
