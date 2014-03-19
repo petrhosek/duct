@@ -1,10 +1,74 @@
 import 'package:unittest/unittest.dart';
 import '../lib/parser.dart';
 
+// tests encoding and decoding a packet
+bool check(obj){
+  expect(Parser.decode(Parser.encode(obj)), equals(obj));
+}
+
+class ParserMatcher extends BaseMatcher {
+  final String _prefix;
+  PrefixMatcher(prefix) : this._prefix = collapseWhitespace(prefix);
+  bool matches(item, MatchState matchState) {
+    return Parser.decode(Parser.encode(item)) == obj;
+  }
+  Description describe(Description description) =>
+    description.add('a string starting with ').
+        addDescriptionOf(collapseWhitespace(_prefix)).
+        add(' ignoring whitespace');
+}
+
 /**
  * Parser test.
  */
 main() {
+  test('exposes types', () {
+    expect(Parser.CONNECT, equals(0));
+    expect(Parser.DISCONNECT, equals(1));
+    expect(Parser.EVENT, equals(2));
+    expect(Parser.ACK, equals(3));
+    expect(Parser.ERROR, equals(4));
+  });
+
+  test('encodes connection', () {
+    check({
+      'type': Parser.CONNECT,
+      'nsp': '/woot'
+    });
+  });
+
+  test('encodes disconnection', () {
+    check({
+      'type': Parser.DISCONNECT,
+      'nsp': '/woot'
+    });
+  });
+
+  test('encodes an event', () {
+    check({
+      'type': Parser.EVENT,
+      'data': ['a', 1, {}],
+      'nsp': '/'
+    });
+    check({
+      'type': Parser.EVENT,
+      'data': ['a', 1, {}],
+      'id': 1,
+      'nsp': '/test'
+    });
+  });
+
+  test('encodes an ack', () {
+    check({
+      'type': Parser.ACK,
+      'data': ['a', 1, {}],
+      'id': 123,
+      'nsp': '/'
+    });
+  });
+}
+
+/*main() {
   test('decoding error packet', () {
     expect(Parser.decodePacket('7:::'), equals({
         'type': 'error'
@@ -335,4 +399,4 @@ main() {
       , 'data': '\n'
     }));
   });
-}
+}*/

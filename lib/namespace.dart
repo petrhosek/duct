@@ -35,14 +35,14 @@ class SocketNamespace extends EventEmitter {
   set to(String room) {
     _flags['endpoint'] = '_name${room != null ? '/$room' : ''}';
   }
-  
+
   /**
    * Adds a session id we should prevent relaying messages to (flag).
    */
   set except(String id) {
     _flags['exceptions'].addLast(id);
   }
-  
+
   /**
    * Sets the default flags.
    */
@@ -52,7 +52,7 @@ class SocketNamespace extends EventEmitter {
       'exceptions': []
     };
   }
-  
+
   set authorization(Function fn) => _auth = fn;
 
   /**

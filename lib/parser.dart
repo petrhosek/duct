@@ -2,241 +2,119 @@ library parser;
 
 import 'dart:json';
 
-// https://github.com/prujohn/dart-xml/blob/master/lib/src/xml_tokenizer.dart
-// https://github.com/prujohn/dart-xml/blob/master/lib/src/xml_parser.dart
-
 class Parser {
-
-  static final packets = const <String, int> {
-      'disconnect': 0,
-      'connect': 1,
-      'heartbeat': 2,
-      'message': 3,
-      'json': 4,
-      'event': 5,
-      'ack': 6,
-      'error': 7,
-      'noop': 8
-    };
-  static final reasons = const <String, int> {
-      'transport not supported': 0,
-      'client not handshaken': 1,
-      'unauthorized': 2
-    };
-  static final advice = const <String, int> {
-      'reconnect': 0
-    };
-
-  static String encodePacket(Map packet) {
-    int type = packets[packet['type']];
-    var id = packet['id'] != null ? packet['id'] : '';
-    String endpoint = packet['endpoint'] != null ? packet['endpoint'] : '';
-    var ack = packet['ack'] != null ? packet['ack']: '';
-    String data = null;
-
-    switch (packet['type']) {
-      case 'message':
-        if (packet['data'] != '' && !packet['data'].isEmpty) {
-          data = packet['data'];
-        }
-        break;
-
-      case 'event':
-        Map event = { 'name': packet['name'] };
-        if (packet['args'] != null && packet['args'].length > 0) {
-          event['args'] = packet['args'];
-        }
-        data = JSON.stringify(event);
-        break;
-
-      case 'json':
-        data = JSON.stringify(packet['data']);
-        break;
-
-      case 'ack':
-        String args = '';
-        if (packet['args'] != null && packet['args'].length > 0) {
-          args = "+${JSON.stringify(packet['args'])}";
-        }
-        data = "${packet['ackId']}$args";
-        break;
-
-      case 'connect':
-        if (packet['qs'] != null && !packet['qs'].isEmpty) {
-          data = packet['qs'];
-        }
-        break;
-
-      case 'error':
-        int reason = reasons[packet['reason']],
-            adv    = advice[packet['advice']];
-        if (reason != null || adv != null) {
-          data = "$reason${adv != null ? "+$adv" : ''}";
-        }
-
-        break;
-    }
-
-    // construct packet with required fragments
-    var encoded = new StringBuffer();
-
-    encoded.add("$type:$id");
-    if (ack == 'data') {
-      encoded.add('+');
-    }
-    encoded.add(":$endpoint");
-
-    // data fragment is optional
-    if (data != null) {
-      encoded.add(":$data");
-    }
-
-    return encoded.toString();
-  }
-
-  /**
-   * Encodes multiple messages (payload)
-   */
-  static String encodePayload(List<String> packets) {
-    if (packets.length == 1) {
-      return packets[0];
-    }
-
-    var decoded = new StringBuffer();
-    packets.forEach((p) => decoded.add('\ufffd${p.length}\ufffd$p'));
-    return decoded.toString();
-  }
-
-  static final RegExp regexp = new RegExp(r'([^:]+):([0-9]+)?(\+)?:([^:]+)?:?([\s\S]*)?');
-
-  static final packetslist = const <String> [
-      'disconnect',
-      'connect',
-      'heartbeat',
-      'message',
-      'json',
-      'event',
-      'ack',
-      'error',
-      'noop'
-    ];
-  static final reasonslist = const <String> [
-      'transport not supported',
-      'client not handshaken',
-      'unauthorized'
-    ];
-  static final advicelist = const <String> [
-      'reconnect'
-    ];
   
-  static Object parse(String data) {
-    try {
-      return JSON.parse(data);
-    } catch(e) {
-      return null;
+  /// Protocol version
+  static const int protocol = 1;
+  
+  /// Protocol version
+  static final types = [
+    'CONNECT',
+    'DISCONNECT',
+    'EVENT',
+    'ACK',
+    'ERROR'
+  ];
+  
+  /// Packet type `connect`
+  static const int CONNECT = 0;
+  /// Packet type `disconnect`
+  static const int DISCONNECT = 1;
+  /// Packet type `event`
+  static const int EVENT = 2;
+  /// Packet type `ack`
+  static const int ACK = 3;
+  /// Packet type `error`
+  static const int ERROR = 4;
+  
+  static String encode(obj) {
+    var str = '';
+    var nsp = false;
+
+    // first is type
+    str += obj.type;
+
+    // if we have a namespace other than `/`
+    // we append it followed by a comma `,`
+    if (obj.nsp && '/' != obj.nsp) {
+      nsp = true;
+      str += obj.nsp;
     }
-  }
 
-  static Map decodePacket(String string) {
-    Match match = regexp.firstMatch(string);
-
-    String data = match[5] != null ? match[5] : '';
-    Map packet = {
-      'type': packetslist[int.parse(match[1])],
-      'endpoint': match[4] != null ? match[4] : ''
-    };
-
-    // whether we need to acknowledge the packet
-    if (match[2] != null) {
-      packet['id'] = int.parse(match[2]);
-      if (match[3] != null) {
-        packet['ack'] = 'data';
-      } else {
-        packet['ack'] = true;
+    // immediately followed by the id
+    if (null != obj.id) {
+      if (nsp) {
+        str += ',';
+        nsp = false;
       }
+      str += obj.id;
     }
 
-    // handle different packet types
-    switch (packet['type']) {
-      case 'message':
-        packet['data'] = data;
-        break;
-
-      case 'event':
-        var json = parse(data);
-        if (json != null) {
-          packet['name'] = json['name'];
-          packet['args'] = json['args'];
-        }
-        packet['args'] = packet['args'] != null ? packet['args'] : [];
-        break;
-
-      case 'json':
-        packet['data'] = parse(data);
-        break;
-
-      case 'connect':
-        packet['qs'] = data;
-        break;
-
-      case 'ack':
-        match = (new RegExp(r'^([0-9]+)(\+)?(.*)')).firstMatch(data);
-        if (match != null) {
-          packet['ackId'] = match[1];
-          packet['args'] = [];
-
-          if (match[3] != null && !match[3].isEmpty) {
-            var args = parse(match[3]);
-            packet['args'] = args != null ? args : [];
-          }
-        }
-        break;
-
-      case 'error':
-        match = (new RegExp(r'([0-9]+)?(\+)?([0-9]+)?')).firstMatch(data);
-        if (match != null) {
-          packet['reason'] = '';
-          if (match[1] != null) {
-            packet['reason'] = reasonslist[int.parse(match[1])];
-          }
-          packet['advice'] = '';
-          if (match[3] != null) {
-            packet['advice'] = advicelist[int.parse(match[3])];
-          }
-        }
-        break;
+    // json data
+    if (null != obj.data) {
+      if (nsp) str += ',';
+      str += stringify(obj.data);
     }
 
-    return packet;
+    debug('encoded %j as %s', obj, str);
+    return str;
   }
+  
+  static Map decode(String str) {
+    var p = {};
+    var i = 0;
 
-  /**
-   * Decodes data payload. Detects multiple messages.
-   */
-  static List<Map> decodePayload(String data) {
-    if (data == null) {
-      return [];
-    }
+    // look up type
+    p.type = int.parse(str[0]);
+    if (null == types[p.type]) return error();
 
-    if (data[0] == '\ufffd') {
-      List<Map> ret = new List<Map>();
-
-      var length = new StringBuffer();
-      for (var i = 1; i < data.length; i++) {
-        if (data[i] == '\ufffd') {
-          var l = int.parse(length.toString());
-          ret.add(decodePacket(data.substring(i + 1, i + l + 1)));
-          i += l + 1;
-          length.clear();
-        } else {
-          length.add(data[i]);
-        }
+    // look up namespace (if any)
+    if ('/' == str[i + 1]) {
+      p.nsp = '';
+      while (++i) {
+        var c = str[i];
+        if (',' == c) break;
+        p.nsp += c;
+        if (i + 1 == str.length) break;
       }
-
-      return ret;
     } else {
-      return [decodePacket(data)];
+      p.nsp = '/';
     }
+
+    // look up id
+    var next = str[i + 1];
+    if ('' != next && int.parse(next) == next) {
+      p.id = '';
+      while (++i) {
+        var c = str[i];
+        if (null == c || int.parse(c) != c) {
+          --i;
+          break;
+        }
+        p.id += str[i];
+        if (i + 1 == str.length) break;
+      }
+      p.id = int.parse(p.id);
+    }
+
+    // look up json data
+    if (str[++i]) {
+      try {
+        p.data = parse(str.substring(i));
+      } on FormatException catch(e){
+        return error();
+      }
+    }
+
+    debug('decoded %s as %j', str, p);
+    return p;
+  }
+  
+  static Map error(data) {
+    return {
+      'type': ERROR,
+      'data': 'parser error'
+    };
   }
 
 }

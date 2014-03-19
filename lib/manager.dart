@@ -12,18 +12,18 @@ class Manager {
   HttpServer server;
 
   Map<String, Transport> transports;
-  
+
   Map _namespaces;
   Map _sockets;
-  
+
   Map _rooms;
   Map _roomClients;
-  
+
   Logger _logger = new Logger('Manager');
 
   Map _client;
   Map _handshaken;
-  
+
   Map<String, Object> _settings;
 
   Map get client => _client;
@@ -38,7 +38,7 @@ class Manager {
     _roomClients = new Map<String, Map<String, bool>>();
 
     options.forEach((k, v) => _settings[k] = v);
-    
+
     server.on('request', (req, res) {
       handleRequest(req, res);
     });
@@ -46,7 +46,7 @@ class Manager {
     server.on('upgrade', (req, socket, head) {
       handleUpgrade(req, socket, head);
     });
-    
+
     server.addRequestHandler(
         (req) => req.headers[HttpHeaders.UPGRADE] != null,
         _handleUpgrade);
@@ -352,7 +352,7 @@ class Manager {
     req.res = res;
     this.handleClient(data, req);
   }
-  
+
   /**
    * Intantiantes a new client.
    */
@@ -414,7 +414,7 @@ class Manager {
             var socket = this.namespaces[i].socket(data.id, true);
 
             // echo back connect packet and fire connection event
-            if (i === '') {
+            if (identical(i, '')) {
               this.namespaces[i].handlePacket(data.id, { type: 'connect' });
             }
           }
@@ -446,7 +446,7 @@ class Manager {
         , headers = {
                      'Content-Type': 'text/plain'
     };
-  
+
     function writeErr (status, message) {
       if (data.query.jsonp && jsonpolling_re.test(data.query.jsonp)) {
         res.writeHead(200, { 'Content-Type': 'application/javascript' });
@@ -456,28 +456,28 @@ class Manager {
         res.end(message);
       }
     };
-  
+
     function error (err) {
       writeErr(500, 'handshake error');
       self.log.warn('handshake error ' + err);
     };
-  
+
     if (!this.verifyOrigin(req)) {
       writeErr(403, 'handshake bad origin');
       return;
     }
-  
+
     var handshakeData = this.handshakeData(data);
-  
+
     if (origin) {
       // https://developer.mozilla.org/En/HTTP_Access_Control
       headers['Access-Control-Allow-Origin'] = origin;
       headers['Access-Control-Allow-Credentials'] = 'true';
     }
-  
-    this.authorize(handshakeData, function (err, authorized, newData) {
+
+    this.authorize(handshakeData,  (err, authorized, newData) {
       if (err) return error(err);
-  
+
       if (authorized) {
         var id = base64id.generateId()
           , hs = [
@@ -486,19 +486,19 @@ class Manager {
               , self.get('close timeout') || ''
               , self.transports(data).join(',')
             ].join(':');
-  
+
         if (data.query.jsonp && jsonpolling_re.test(data.query.jsonp)) {
           hs = 'io.j[' + data.query.jsonp + '](' + JSON.stringify(hs) + ');';
           res.writeHead(200, { 'Content-Type': 'application/javascript' });
         } else {
           res.writeHead(200, headers);
         }
-  
+
         res.end(hs);
-  
+
         self.onHandshake(id, newData || handshakeData);
         self.store.publish('handshake', id, newData || handshakeData);
-  
+
         self.log.info('handshake authorized', id);
       } else {
         writeErr(403, 'handshake unauthorized');
@@ -513,7 +513,7 @@ class Manager {
   void _handshakeData(String data) {
     var connection = data.request.connection
         , connectionAddress
-        , date = new Date;
+        , date = new DateTime;
 
     if (connection.remoteAddress) {
       connectionAddress = {
@@ -588,7 +588,7 @@ class Manager {
     if (this.get('authorization')) {
       var self = this;
 
-      this.get('authorization').call(this, data, function (err, authorized) {
+      this.get('authorization').call(this, data,  (err, authorized) {
         self.log.debug('client ' + (authorized ? 'authorized' : 'unauthorized'));
         fn(err, authorized);
       });
@@ -617,7 +617,7 @@ class Manager {
 
     return ret;
   }
-  
+
   var regexp = '/^\/([^\/]+)\/?([^\/]+)?\/?([^\/]+)?\/?$/';
 
   /**
@@ -631,7 +631,7 @@ class Manager {
     var match;
     if (typeof resource === 'string') {
       match = req.url.substr(0, resource.length);
-      if (match !== resource) match = null;
+      if (!identical(match, resource)) match = null;
     } else {
       match = resource.exec(req.url);
       if (match) match = match[0];
@@ -649,17 +649,17 @@ class Manager {
         , request: req
         , path: path
       };
-  
+
       if (pieces) {
         data.protocol = Number(pieces[1]);
         data.transport = pieces[2];
         data.id = pieces[3];
         data.static = !!this.static.has(path);
       };
-  
+
       return data;
     }
-  
+
     return false;
   }
 

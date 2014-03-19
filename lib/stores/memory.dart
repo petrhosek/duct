@@ -53,7 +53,7 @@ class _MemoryClient implements Client {
 class MemoryStore extends Store {
 
   MemoryStore([options = const {}]): super(options);
-  
+
   Client createClient(Store store, String id) => new _MemoryClient(store, id);
 
   /**
@@ -70,5 +70,5 @@ class MemoryStore extends Store {
    * Unsubscribes from a channel.
    */
   unsubscribe(String name) {}
-  
+
 }

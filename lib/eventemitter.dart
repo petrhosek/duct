@@ -8,7 +8,7 @@ typedef void EventListener(Event event);
 
 class EventTarget {
   Events get on => new Events(this);
-  
+
   void addEventListener(String type, EventListener listener, [bool useCapture]);
   bool dispatchEvent(Event event);
   void removeEventListener(String type, EventListener listener, [bool useCapture]);
@@ -16,19 +16,19 @@ class EventTarget {
 
 class EventListenerList {
   final Set<EventListener> _listenerList;
-  
+
   EventListenerList(EventTarget _ptr, String _type) :
     _listenerList = new Set<EventListener>();
-  
+
   EventListenerList add(EventListener listener) {
     _listenerList.add(listener);
     return this;
   }
-  
+
   bool dispatch(Event event) {
     _listenerList.forEach((listener) => listener(event));
   }
-  
+
   EventListenerList remove(EventListener listener) {
     _listenerList.remove(listener);
     return this;
@@ -38,9 +38,9 @@ class EventListenerList {
 class Events {
   final EventTarget _ptr;
   final Map<String, EventListenerList> _listenerMap;
-  
+
   Events(this._ptr) : _listenerMap = <String, EventListenerList>{};
-  
+
   EventListenerList operator[](String type) {
     return _listenerMap.putIfAbsent(type,
         () => new EventListenerList(_ptr, type));

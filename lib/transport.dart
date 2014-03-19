@@ -37,38 +37,38 @@ abstract class Transport {
   const int OPEN = 1;
   const int CLOSING = 2;
   const int CLOSED = 3;
-  
+
   Manager _manager;
   Object _id;
-  
+
   Socket _socket;
-  
+
   bool _open;
   bool _disconnected;
   bool _drained;
   bool _discarded;
   bool _handlersSet;
-  
+
   Timer _heartbeatTimeout;
   Timer _heartbeatInterval;
   Timer _closeTimeout;
-  
+
   Transport(this._manager, data, request) :
     _disconnected = false, _drained = true {
     _id = data.id;
     handleRequest(request);
   }
-  
+
   /**
    * Access the logger.
    */
   Logger get log => _manager.log;
-  
+
   /**
    * Access the store.
    */
   Store get store => _manager.store;
-  
+
   /**
    * Handles a request when it's set.
    */
@@ -266,7 +266,7 @@ abstract class Transport {
       log.fine('set heartbeat interval for client $_id');
     }
   }
-  
+
   /**
    * Clears the heartbeat interval.
    */
@@ -333,7 +333,7 @@ abstract class Transport {
           'ackId': packet.id,
           'endpoint': packet.endpoint || ''
         });
-  
+
         if (current != null && current.open) {
           current.onDispatch(ack);
         } else {
@@ -341,7 +341,7 @@ abstract class Transport {
           store.publish('dispatch:$_id', ack);
         }
       }
-  
+
       // handle packet locally or publish it
       if (current != null) {
         _manager.onClientMessage(_id, packet);
@@ -358,7 +358,7 @@ abstract class Transport {
     packet({ 'type': 'disconnect' });
     end(reason);
   }
-  
+
   /**
    * Closes the connection.
    */
@@ -368,12 +368,12 @@ abstract class Transport {
       onClose();
     }
   }
-  
+
   /**
    * Closes the connection.
    */
   doClose();
-  
+
   /**
    * Called upon a connection close.
    */
@@ -386,30 +386,30 @@ abstract class Transport {
       store.publish('close', _id);
     }
   }
-  
+
   /**
    * Cleans up the connection, considers the client disconnected.
    */
   end(String reason) {
     if (!_disconnected) {
       log.info('transport end ($reason)');
-  
+
       var local = _manager.transports[_id];
-  
+
       close();
       clearTimeouts();
       _disconnected = true;
-  
+
       if (local != null) {
         _manager.onClientDisconnect(_id, reason, true);
       } else {
         store.publish('disconnect:$_id', reason);
       }
-  
+
       store.publish('kick', _id);
     }
   }
-  
+
   /**
    * Signals that the transport should pause and buffer data.
    */
@@ -419,7 +419,7 @@ abstract class Transport {
     clearTimeouts();
     clearHandlers();
   }
-  
+
   /**
    * Writes an error packet with the specified [reason] and [advice].
    */
@@ -429,23 +429,23 @@ abstract class Transport {
       'reason': reason,
       'advice': advice
     });
-  
+
     log.warning('$reason ${?advice ? 'client should $advice' : ''}');
     end('error');
   }
-  
+
   /**
    * Write a packet.
    */
   packet(obj) {
     return write(Parser.encodePacket(obj));
   }
-  
+
   /**
    * Writes [data] to the socket.
    */
   write(data);
-  
+
   /**
    * Writes a volatile message.
    */

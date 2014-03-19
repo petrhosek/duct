@@ -8,7 +8,7 @@ abstract class Client {
   String id;
 
   Client(this.store, this.id);
-  
+
   /**
    * Gets a key [key].
    */
@@ -54,7 +54,7 @@ abstract class Store {
     }
     return clients[id];
   }
-  
+
   Client createClient(Store store, String id);
 
   /**

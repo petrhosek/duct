@@ -46,27 +46,27 @@ class Socket {
    * Accessor shortcut for the handshake data.
    */
   get handshake => _manager.handshaken[_id];
-  
+
   /**
    * Accessor shortcut for the transport type.
    */
   get transport => _manager.transports[_id].name;
-  
+
   /**
    * Accessor shortcut for the logger.
    */
   Logger get log => _manager.log;
-  
+
   /**
    * JSON message flag.
    */
   get json => _flags.json = true;
-  
+
   /**
    * Volatile message flag.
    */
   get volatile => _flags.volatile = true;
-  
+
   /**
    * Broadcast message flag.
    */
@@ -76,7 +76,7 @@ class Socket {
    * Overrides the room to broadcast messages to (flag)
    */
   set to(String room) => _flags.room = room;
-  
+
   /**
    * Resets flags.
    */
@@ -146,7 +146,7 @@ class Socket {
       _manager.store.publish('dispatch:$_id', packet, volatile);
     }
   }
-  
+
   /**
    * Stores data for the client.
    */
@@ -202,7 +202,7 @@ class Socket {
       packet.ack = true;
       _acks[packet.id] = ack;
     }
-    
+
     _packet(packet);
   }
 
@@ -210,7 +210,7 @@ class Socket {
     if (event == 'newListener') {
       super.emit(event, data);
     }
-    
+
     var args = util.toArray(arguments).slice(1);
     var lastArg = args[args.length - 1];
     var packet = {

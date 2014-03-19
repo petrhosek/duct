@@ -12,11 +12,11 @@ import 'dart:io';
  */
 class WebSocketTransport extends Transport {
   WebSocket _socket;
-  
+
   WebSocketTransport(Manager manager, data, req) :
     super(manager, data, req) {
     _socket = req.wsclient;
-  
+
     _socket.onclose = (event) {
       this.end('socket end');
     };
@@ -27,12 +27,12 @@ class WebSocketTransport extends Transport {
       this.onMessage(Parser.decodePacket(event.data));
     };
   }
-  
+
   /**
    * Writes [data] to the socket.
    */
   write(data) => _socket.send(data);
-  
+
   /**
    * Closes the connection.
    */

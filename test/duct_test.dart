@@ -24,7 +24,7 @@ main() {
   test('test listening with a port', () {
     var client = new HttpClient();
     var server = create(client);
-    
+
     expect(server, new isInstanceOf<HttpServer>());
 
     var conn = client.get('127.0.0.1', ++ports, '/');
@@ -46,12 +46,12 @@ main() {
   test('test listening with a server', () {
     var server = new HttpServer();
     var client = new HttpClient();
-    
+
     var port = ++ports;
-    
+
     var duct = Duct.listen(server);
     server.listen('127.0.0.1', port);
-    
+
     var conn = client.get('127.0.0.1', port, '/socket.io');
     conn.onResponse = (HttpClientResponse res) {
       expect(res.statusCode, equals(HttpStatus.OK));
@@ -72,7 +72,7 @@ main() {
     try {
       var server = Duct.listen();
       var client = new HttpClient();
-      
+
       var conn = client.get('127.0.0.1', 80, '/socket.io');
       conn.onResponse = (HttpClientResponse res) {
         expect(res.statusCode, equals(HttpStatus.OK));

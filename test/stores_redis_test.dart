@@ -12,31 +12,31 @@ import 'dart:isolate';
 main() {
   test('test storing data for a client', () {
     var store = new RedisStore();
-    var rand = 'test-${new Date.now()}';
+    var rand = 'test-${new DateTime.now()}';
     var client = store.client('test');
 
     expect(client.id, equals('test'));
 
-    client.set('a', 'b').then(expectAsync1(_) {
-      client.get('a').then(expectAsync1(val) {
+    client.set('a', 'b').then((_) {
+      client.get('a').then((val) {
         expect(val, equals('b'));
 
-        client.has('a').then(expectAsync1(has) {
+        client.has('a').then((has) {
           expect(has, isTrue);
 
-          client.has('b').then(expectAsync1(has) {
+          client.has('b').then((has) {
             expect(has, isFalse);
 
-            client.del('a').then(expectAsync1(_) {
-              client.has('a').then(expectAsync1(has) {
+            client.del('a').then((_) {
+              client.has('a').then((has) {
                 expect(has, isFalse);
 
-                client.set('b', 'c').then(expectAsync1(_) {
-                  client.set('c', 'd').then(expectAsync1(_) {
-                    client.get('b').then(expectAsync1(val) {
+                client.set('b', 'c').then((_) {
+                  client.set('c', 'd').then((_) {
+                    client.get('b').then((val) {
                       expect(val, equals('c'));
 
-                      client.get('c').then(expecetAsync1(val) {
+                      client.get('c').then((val) {
                         expect(val, equals('d'));
 
                         store.destroy();
@@ -54,19 +54,19 @@ main() {
 
   test('test cleaning up clients data', () {
     var random = new Random();
-    var rand1 = '${((random.nextDouble() * new Date.now().millisecondsSinceEpoch).toInt() | 0).abs()}';
-    var rand2 = '${((random.nextDouble() * new Date.now().millisecondsSinceEpoch).toInt() | 0).abs()}';
+    var rand1 = '${((random.nextDouble() * new DateTime.now().millisecondsSinceEpoch).toInt() | 0).abs()}';
+    var rand2 = '${((random.nextDouble() * new DateTime.now().millisecondsSinceEpoch).toInt() | 0).abs()}';
 
     var store = new RedisStore();
     var client1 = store.client(rand1);
     var client2 = store.client(rand2);
 
-    client1.set('a', 'b').then(expectAsync1(_) {
-      client2.set('c', 'd').then(expectAsync1(_) {
-        client1.has('a').then(expectAsync1(has) {
+    client1.set('a', 'b').then((_) {
+      client2.set('c', 'd').then((_) {
+        client1.has('a').then((has) {
           expect(has, isTrue);
 
-          client2.has('c').then(expectAsync1(has) {
+          client2.has('c').then((has) {
             expect(has, isTrue);
 
             store.destroy();
@@ -75,10 +75,10 @@ main() {
             var newclient1 = newstore.client(rand1);
             var newclient2 = newstore.client(rand2);
 
-            newclient1.has('a').then(expectAsync1(has) {
+            newclient1.has('a').then((has) {
               expect(has, isFalse);
 
-              newclient2.has('c').then(expectAsync1(has) {
+              newclient2.has('c').then((has) {
                 expect(has, isFalse);
 
                 newstore.destroy();
@@ -92,19 +92,19 @@ main() {
 
   test('test cleaning up a particular client', () {
     var random = new Random();
-    var rand1 = '${((random.nextDouble() * new Date.now().millisecondsSinceEpoch).toInt() | 0).abs()}';
-    var rand2 = '${((random.nextDouble() * new Date.now().millisecondsSinceEpoch).toInt() | 0).abs()}';
+    var rand1 = '${((random.nextDouble() * new DateTime.now().millisecondsSinceEpoch).toInt() | 0).abs()}';
+    var rand2 = '${((random.nextDouble() * new DateTime.now().millisecondsSinceEpoch).toInt() | 0).abs()}';
 
     var store = new RedisStore();
     var client1 = store.client(rand1);
     var client2 = store.client(rand2);
 
-    client1.set('a', 'b').then(expectAsync1(_) {
-      client2.set('c', 'd').then(expectAsync1(_) {
-        client1.has('a').then(expectAsync1(has) {
+    client1.set('a', 'b').then((_) {
+      client2.set('c', 'd').then((_) {
+        client1.has('a').then((has) {
           expect(has, isTrue);
 
-          client2.has('c').then(expectAsync1(has) {
+          client2.has('c').then((has) {
             expect(has, isTrue);
 
             expect(store.clients, contains(rand1));
@@ -114,7 +114,7 @@ main() {
             expect(store.clients, isNot(contains(rand1)));
             expect(store.clients, contains(rand2));
 
-            client1.has('a').then(expectAsync1(has) {
+            client1.has('a').then((has) {
               expect(has, isFalse);
 
               store.destroy();
@@ -127,20 +127,20 @@ main() {
 
   test('test destroy expiration', () {
     var store = new RedisStore();
-    var id = '${((new Random().nextDouble() * new Date.now().millisecondsSinceEpoch).toInt() | 0).abs()}';
+    var id = '${((new Random().nextDouble() * new DateTime.now().millisecondsSinceEpoch).toInt() | 0).abs()}';
     var client = store.client(id);
 
-    client.set('a', 'b').then(expectAsync1(_) {
+    client.set('a', 'b').then((_) {
       store.destroyClient(id, 1);
 
       new Timer(500, (_) {
-        client.get('a').then(expectAsync1(val) {
+        client.get('a').then((val) {
           expect(val, equals('b'));
         });
       });
 
       new Timer(2000, (_) {
-        client.get('a').then(expectAsync1(val) {
+        client.get('a').then((val) {
           expect(val, isNull);
 
           store.destroy();

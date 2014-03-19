@@ -6,7 +6,7 @@ import 'package:dartredisclient/redis_client.dart';
 class _RedisClient implements Client {
   RedisStore store;
   String id;
-  
+
   _RedisClient(this.store, this.id);
 
   /**
@@ -51,9 +51,9 @@ class RedisStore extends Store {
       _client = new RedisClient(options['connStr']);
     }
   }
-  
+
   Client createClient(Store store, String id) => new _RedisClient(store, id);
-  
+
   /**
    * Publishes a message.
    */

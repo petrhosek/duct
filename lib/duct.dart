@@ -21,12 +21,12 @@ class Duct {
    * Version.
    */
   static const String version = '0.0.1';
-  
+
   /**
    * Supported protocol version.
    */
   static const int protocol = 1;
-  
+
   /**
    * Attaches a manager.
    *
@@ -38,16 +38,16 @@ class Duct {
   static listen([HttpServer server, int port = 80, options = const {}]) {
     if (server == null) {
       var server = new HttpServer();
-      
+
       //default response
       server.defaultRequestHandler = (HttpRequest req, HttpResponse res) {
         res.statusCode = HttpStatus.OK;
         res.outputStream.write('Welcome to socket.io'.charCodes);
       };
-      
+
       server.listen('127.0.0.1', port);
     }
-    
+
     // otherwise assume a http/s server
     return new Manager(server, options);
   }
