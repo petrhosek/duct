@@ -37,7 +37,7 @@ class Manager {
     _rooms = new Map<String, List<String>>();
     _roomClients = new Map<String, Map<String, bool>>();
 
-    options.forEach((k, v) => _settings[k] = v);
+    _settings.addAll(options);
 
     server.on('request', (req, res) {
       handleRequest(req, res);
