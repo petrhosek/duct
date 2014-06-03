@@ -667,11 +667,8 @@ class Manager {
    * Declares a socket namespace.
    */
   SocketNamespace of(String namespace) {
-    if (this.namespaces[namespace]) {
-      return this.namespaces[namespace];
-    }
-
-    return this.namespaces[namespace] = new SocketNamespace(this, namespace);
+    this.namespaces.putIfAbsent(namespace, () => new SocketNamespace(this, namespace));
+    return this.namespaces[namespace];
   }
 
   /**
