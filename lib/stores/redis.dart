@@ -1,7 +1,7 @@
 library redis_store;
 
 import '../store.dart';
-import 'package:dartredisclient/redis_client.dart';
+import 'package:redis_client/redis_client.dart';
 
 class _RedisClient implements Client {
   RedisStore store;

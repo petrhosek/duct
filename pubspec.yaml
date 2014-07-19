@@ -7,5 +7,5 @@ dependencies:
   unittest: '>=0.4.3'
   benchmark_harness: '>=1.0.0 <2.0.0'
   logging: '>=0.4.3'
-  dartredisclient:
+  redis_client:
     git: git://github.com/dartist/redis_client.git
