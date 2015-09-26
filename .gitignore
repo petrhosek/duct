@@ -3,3 +3,4 @@ children
 .DS_Store
 packages
 pubspec.lock
+.pub/
